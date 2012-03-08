@@ -92,10 +92,15 @@ def computeWordRanges(digitRanges, wordProbabilities, maxDigits):
 	for wordP in wordProbabilities:
 		end = start + wordP[1][0] * step
 
-		wordRanges.append((wordP[0], (start, end)))
+		wordRanges.append([wordP[0], [start, end]])
 		start = end
 
+	# the last element could be wrong because of float precision problems, force it
+	# it is very important that we force this change in wordRanges and not in wordRanges2; otherwise the list could lose extra elements
+	wordRanges[-1][1][1] = rangeNums[1]
+
 	start = rangeNums[0]
+
 	wordRanges2 = []
 	for wordR in wordRanges:
 		if wordR[1][1] >= start:
@@ -103,9 +108,6 @@ def computeWordRanges(digitRanges, wordProbabilities, maxDigits):
 			wordRanges2.append(wordR2)
 
 		start = wordR2[1][1] + 1
-
-	# the last element could be wrong because of float precision problems, force it
-	wordRanges2[-1][1][1] = rangeNums[1]
 
 	# convert to binary before returning
 	return [

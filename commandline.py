@@ -1,27 +1,27 @@
 # create simple markov chain:
-# python commandline.py --wordsPerState 1 createMarkov data/warandpeace.txt data/binaryMarkovChain.json
+# python commandline.py --wordsPerState 1 createMarkov data/warandpeace.txt data/markovChain.json
 # create markov chain with bigrams:
-# python commandline.py --wordsPerState 2 createMarkov data/warandpeace.txt data/binaryMarkovChain2.json
+# python commandline.py --wordsPerState 2 createMarkov data/warandpeace.txt data/markovChain2.json
 
 # test any markov chain:
-# python commandline.py testMarkov data/binaryMarkovChain.json any
+# python commandline.py testMarkov data/markovChain.json any
 
 # generate texts using both markov chains:
-# python commandline.py --wordsPerState 1 genTextWithMarkov data/binaryMarkovChain.json any
-# python commandline.py --wordsPerState 2 genTextWithMarkov data/binaryMarkovChain2.json any
+# python commandline.py --wordsPerState 1 genTextWithMarkov data/markovChain.json any
+# python commandline.py --wordsPerState 2 genTextWithMarkov data/markovChain2.json any
 
 # simple encode decode to json file:
-# python commandline.py encode --markovInput data/binaryMarkovChain.json tests/utils.pyc.orig.1 tests/encoded.json
-# python commandline.py decode --markovInput data/binaryMarkovChain.json tests/encoded.json tests/utils.pyc.1
+# python commandline.py encode --markovInput data/markovChain.json tests/utils.pyc.orig.1 tests/encoded.json
+# python commandline.py decode --markovInput data/markovChain.json tests/encoded.json tests/utils.pyc.1
 # test with: diff tests/utils.pyc.orig.1 tests/utils.pyc.1
 
 # encode decode to json file, using bigrams:
-# python commandline.py encode --markovInput data/binaryMarkovChain2.json --wordsPerState 2 tests/utils.pyc.orig.1 tests/encoded2.json
-# python commandline.py decode --markovInput data/binaryMarkovChain2.json --wordsPerState 2 tests/encoded2.json tests/utils.pyc.1
+# python commandline.py encode --markovInput data/markovChain2.json --wordsPerState 2 tests/utils.pyc.orig.1 tests/encoded2.json
+# python commandline.py decode --markovInput data/markovChain2.json --wordsPerState 2 tests/encoded2.json tests/utils.pyc.1
 
 # encode decode to txt file, using bigrams:
-# python commandline.py encodeFullText --markovInput data/binaryMarkovChain2.json --wordsPerState 2 tests/utils.pyc.orig.1 tests/encoded2.txt
-# python commandline.py decodeFullText --markovInput data/binaryMarkovChain2.json --wordsPerState 2 tests/encoded2.txt tests/utils.pyc.1
+# python commandline.py encodeFullText --markovInput data/markovChain2.json --wordsPerState 2 tests/utils.pyc.orig.1 tests/encoded2.txt
+# python commandline.py decodeFullText --markovInput data/markovChain2.json --wordsPerState 2 tests/encoded2.txt tests/utils.pyc.1
 
 import argparse
 import markov
@@ -55,7 +55,7 @@ if wordsPerState == None: wordsPerState = 1
 if mode == "createMarkov":
 	print "creating markov chain"
 	print "using wordsPerState = " + repr(wordsPerState)
-	markov.createBinarizedMarkovChainFromFile(inputFile, outputFile, wordsPerState)
+	markov.createMarkovChainFromFile(inputFile, outputFile, wordsPerState)
 	print "done"
 elif mode == "testMarkov":
 	print "testing markov chain"

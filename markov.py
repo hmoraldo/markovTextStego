@@ -32,30 +32,9 @@ def computeProbabilities(words):
 	total = sum([c[1] for c in count])
 	return [(c[0], (c[1], total)) for c in count]
 
-# binarize
-def binarizeProbabilities(words):
-	"convert all probabilities to fractions where the denominator is a power of 2"
-	total = words[0][1][1]
-	newTotal = int(math.pow(2, math.ceil(math.log(total, 2))))
-
-	factor = (1.0 * newTotal) / total
-	words2 = [(w[0], (int(round(w[1][0] * factor)), newTotal)) for w in words]
-	diff = newTotal - sum([w[1][0] for w in words2])
-
-	for w in range(len(words2)):
-		if diff != 0:
-			sign = int(math.copysign(1, diff))
-
-			words2[w] = (words2[w][0], (words2[w][1][0] + sign, newTotal))
-			diff = diff - sign
-
-	return words2
-
-
-
 # wordsPerState is either 1 (the chain keeps probabilities per bigram; 1 input word to 1 output word) or 2
 # (the chain keeps probabilities for each 2 input words that go to 1 output word)
-def createBinarizedMarkovChain(inputData, wordsPerState):
+def createMarkovChain(inputData, wordsPerState):
 	# split sentences, get bigrams
 	lines = [re.findall(r"\w[\w']*", line) for line
 		in re.split(r"\r\n\r\n|\n\n|\,|\.|\!", inputData)]
@@ -96,34 +75,31 @@ def createBinarizedMarkovChain(inputData, wordsPerState):
 	fullBigrams = bigramsDict.values()
 
 	fullBigrams = [(bigram[0], computeProbabilities(bigram[1])) for bigram in fullBigrams]
-	# at this point, fullBigrams contains the non-binarized markovChain
+	# at this point, fullBigrams contains the markovChain with probabilities in fractions
 
-	# binarize
-	binaryBigrams = [(bigram[0], binarizeProbabilities(bigram[1])) for bigram in fullBigrams]
-
-	return binaryBigrams
+	return fullBigrams
 
 
 # wordsPerState is either 1 (the chain keeps probabilities per bigram; 1 input word to 1 output word) or 2
 # (the chain keeps probabilities for each 2 input words that go to 1 output word)
-def createBinarizedMarkovChainFromFile(inputFile, outputFile, wordsPerState):
+def createMarkovChainFromFile(inputFile, outputFile, wordsPerState):
 	f = open(inputFile, 'r')
 	inputData = f.read()
 	f.close()
 
-	binaryBigrams = createBinarizedMarkovChain(inputData, wordsPerState)
+	bigrams = createMarkovChain(inputData, wordsPerState)
 
 	# save
-	jsonData = json.JSONEncoder().encode(binaryBigrams)
+	jsonData = json.JSONEncoder().encode(bigrams)
 	f = open(outputFile, 'w')
 	f.write(jsonData)
 	f.close()
 
 
 
-# check binarized markov file
-def testMarkovChain(inputBinarizedMarkov):
-	f = open(inputBinarizedMarkov, 'r')
+# check markov file
+def testMarkovChain(inputMarkov):
+	f = open(inputMarkov, 'r')
 	jsonData = f.read()
 	f.close()
 
@@ -144,13 +120,13 @@ def testMarkovChain(inputBinarizedMarkov):
 
 
 	if errors == 0:
-		print "OK: no errors found in binarized markov file"	
+		print "OK: no errors found in markov file"	
 	else:
-		print "ERROR: " + repr(errors) + " errors found in binarized markov file"
+		print "ERROR: " + repr(errors) + " errors found in markov file"
 
 
-# input can be a binarized or non-binarized markov chain
-# see createBinarizedMarkovChain for a description of the parameter wordsPerState
+# input is a markov chain
+# see createMarkovChain for a description of the parameter wordsPerState
 def generateTextUsingMarkovChain(inputMarkov, wordsPerState):
 	f = open(inputMarkov, 'r')
 	jsonData = f.read()
@@ -166,7 +142,7 @@ def generateTextUsingMarkovChain(inputMarkov, wordsPerState):
 
 	markovDict = {}
 	for bigram in data:
-		markovDict[utils.lowerWordOrList(tuple(bigram[0]))] = bigram[1]
+		markovDict[utils.lowerWordOrList(utils.listToTuple(bigram[0]))] = bigram[1]
 
 	while True:
 		m = markovDict[utils.lowerWordOrList(prev)]
