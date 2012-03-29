@@ -58,19 +58,21 @@ def binaryLowerEqualThan(a, b):
 	return (a == b or binaryLowerThan(a, b))
 
 """
-- digitRanges: a pair of binary numbers (strings), telling what the range to subdivide is
-- wordProbabilities: a list of elements in this format: (word, (numerator, denominator))
-- maxDigits: maximum digits possible in the digit ranges
+this function expands digitRanges to make them cover at least as many values as those in desiredRangeLen
 
-returns a list of elements in this format: (word, range)
+- digitRanges: the actual range of digits
+- rangeNums: the ranges already converted to integers
+- desiredRangeLen: length goal; how many numbers must contain the range (eg. if this value is 256, the range needs 8 bits)
+- maxDigits: max length allowed for the range, in bits
 """
-def computeWordRanges(digitRanges, wordProbabilities, maxDigits):
-	denominator = wordProbabilities[0][1][1]
-	rangeNums = (fromBinary(digitRanges[0]), fromBinary(digitRanges[1]))
+def addDigitsToRange(digitRanges, rangeNums, desiredRangeLen, maxDigits):
 
-	# add more binary digits to range, if needed
 	rangePossibleValues = 1 + rangeNums[1] - rangeNums[0]
-	extraDigitsCount = int(math.ceil(math.log(1.0 * denominator / rangePossibleValues, 2)))
+
+	if desiredRangeLen <= rangePossibleValues:
+		return digitRanges
+
+	extraDigitsCount = int(math.ceil(math.log(1.0 * desiredRangeLen / rangePossibleValues, 2)))
 	if len(digitRanges[0]) + extraDigitsCount > maxDigits:
 		extraDigitsCount = maxDigits - len(digitRanges[0])
 
@@ -79,6 +81,23 @@ def computeWordRanges(digitRanges, wordProbabilities, maxDigits):
 		digitRanges[1] + "".join(["1" for x in range(extraDigitsCount)])
 		)
 
+	return digitRanges
+
+"""
+- digitRanges: a pair of binary numbers (strings), telling what the range to subdivide is
+- wordProbabilities: a list of elements in this format: (word, (numerator, denominator))
+- maxDigits: maximum digits possible in the digit ranges
+
+returns a list of elements in this format: (word, range)
+"""
+def computeWordRanges(digitRanges, wordProbabilities, maxDigits):
+
+	denominator = wordProbabilities[0][1][1]
+	rangeNums = (fromBinary(digitRanges[0]), fromBinary(digitRanges[1]))
+
+	# add more binary digits to range, if needed
+	digitRanges = addDigitsToRange(digitRanges, rangeNums, denominator, maxDigits)
+
 	rangeNums = (fromBinary(digitRanges[0]), fromBinary(digitRanges[1]))
 
 	totalDigits = len(digitRanges[0])
@@ -86,7 +105,9 @@ def computeWordRanges(digitRanges, wordProbabilities, maxDigits):
 	# compute word ranges
 	# first we compute float ranges, then we distribute the actual integer ranges as well as possible
 	step = (1.0 * (rangeNums[1] - rangeNums[0])) / denominator
-	start = rangeNums[0]
+
+	base = rangeNums[0]
+	start = 0
 
 	wordRanges = []
 	for wordP in wordProbabilities:
@@ -97,17 +118,18 @@ def computeWordRanges(digitRanges, wordProbabilities, maxDigits):
 
 	# the last element could be wrong because of float precision problems, force it
 	# it is very important that we force this change in wordRanges and not in wordRanges2; otherwise the list could lose extra elements
-	wordRanges[-1][1][1] = rangeNums[1]
+	wordRanges[-1][1][1] = rangeNums[1] - base
 
-	start = rangeNums[0]
+	start = 0
 
 	wordRanges2 = []
 	for wordR in wordRanges:
 		if wordR[1][1] >= start:
 			wordR2 = [wordR[0], [start, int(math.floor(wordR[1][1]))]]
-			wordRanges2.append(wordR2)
+			wordR3 = [wordR2[0], [wordR2[1][0]+base, wordR2[1][1]+base]]
+			wordRanges2.append(wordR3)
 
-		start = wordR2[1][1] + 1
+			start = wordR2[1][1] + 1
 
 	# convert to binary before returning
 	return [
