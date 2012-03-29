@@ -2,6 +2,7 @@
 import config
 import utils
 import bigBitField
+import time
 
 """
 decodes a single word to digits
@@ -42,6 +43,8 @@ def decodeWordListToBits(words, maxDigits, markovChain, previousWord = config.st
 	bitsField = bigBitField.BigBitField()
 	wordsUsed = 0
 	markovChainDict = utils.markovChainToDictionary(markovChain)
+	lastTime = time.time()
+	secondsForStatusPrint = 20
 
 	for word in words:
 		bitsRange = decodeWordToBitsRange(word, previousWord, markovChainDict, maxDigits - bitsField.totalFieldLen(), bitsRange)
@@ -64,6 +67,10 @@ def decodeWordListToBits(words, maxDigits, markovChain, previousWord = config.st
 			bitsRemovedLen = maxDigits - bitsField.totalFieldLen()
 		bitsField.pushQueueNBits(bitsRange[0][0:bitsRemovedLen])
 		bitsRange = bitsRange2
+
+		if time.time()-lastTime > secondsForStatusPrint:
+			print " - decoded bits so far: " + repr(bitsField.totalFieldLen())
+			lastTime = time.time()
 
 		# we exit when our range describes only one number
 		if bitsField.totalFieldLen() == maxDigits:

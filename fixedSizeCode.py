@@ -2,6 +2,7 @@
 import config
 import utils
 import bigBitField
+import time
 
 """
 encodes a single word
@@ -45,6 +46,8 @@ returns wordList
 def encodeBitsToWordList(bitsField, markovChain, startWord = config.startSymbol, wordsPerState = 1):
 
 	bitsField = bitsField.copy()
+	lastTime = time.time()
+	secondsForStatusPrint = 20
 
 	words = []
 	nextRange = ["0", "1"]
@@ -68,6 +71,10 @@ def encodeBitsToWordList(bitsField, markovChain, startWord = config.startSymbol,
 		nextRange2 = utils.removeCommonBitsInRange(nextRange)
 		bitsField.popFirstNBits(len(nextRange[0])-len(nextRange2[0]))
 		nextRange = nextRange2
+
+		if time.time()-lastTime > secondsForStatusPrint:
+			print " - remaining bits: " + repr(bitsField.totalFieldLen())
+			lastTime = time.time()
 
 		# we exit when our range describes only to our number
 		if bitsField.totalFieldLen() == 0 or (bitsField.totalFieldLen() == 1 and nextRange[0][0] == nextRange[1][0]):
