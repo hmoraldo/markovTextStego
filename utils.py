@@ -102,6 +102,10 @@ def computeWordRanges(digitRanges, wordProbabilities, maxDigits):
 
 	totalDigits = len(digitRanges[0])
 
+	# typical double is 53 bits long; we limit range to some lower amount of bits
+	if math.log(max(1, abs(rangeNums[1] - rangeNums[0])), 2) > 45:
+		raise RuntimeError("error; range too long")
+
 	# compute word ranges
 	# first we compute float ranges, then we distribute the actual integer ranges as well as possible
 	step = (1.0 * (rangeNums[1] - rangeNums[0])) / denominator

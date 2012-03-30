@@ -5,6 +5,7 @@ import bigBitField
 import fixedSizeCode
 import fixedSizeDecode
 import json
+import time
 
 """
 encodes variable sized data to text
@@ -90,10 +91,15 @@ def decodeWordListToData(wordList, bytesForSize, markovChain, wordsPerState = 1)
 
 # given 2 input files, encode and save to the output file
 def encodeDataFromFile(inputFile, outputFile, markovInputFile, textFileFormat, wordsPerState = 1):
+	initTime = time.time()
+
 	f = open(markovInputFile, 'r')
 	jsonData = f.read()
 	f.close()
 	markovData = json.JSONDecoder().decode(jsonData)
+
+	if (wordsPerState == 1 and type(markovData[0][0]) != str) or (wordsPerState == 2 and type(markovData[0][0]) != list):
+		raise RuntimeError("error; markov chain structure doesn't match wordsPerState value")
 
 	inputData = []
 	f = open(inputFile, 'rb')
@@ -116,13 +122,19 @@ def encodeDataFromFile(inputFile, outputFile, markovInputFile, textFileFormat, w
 	f.close()
 
 	print "wrote " + repr(len(inputData) * 8) + " bits"
+	print "elapsed time: " + repr(time.time() - initTime) + " seconds"
 
 # given 2 input files, decode and save to the output file
 def decodeDataFromFile(inputFile, outputFile, markovInputFile, textFileFormat, wordsPerState = 1):
+	initTime = time.time()
+
 	f = open(markovInputFile, 'r')
 	jsonData = f.read()
 	f.close()
 	markovData = json.JSONDecoder().decode(jsonData)
+
+	if (wordsPerState == 1 and type(markovData[0][0]) != str) or (wordsPerState == 2 and type(markovData[0][0]) != list):
+		raise RuntimeError("error; markov chain structure doesn't match wordsPerState value")
 
 	f = open(inputFile, 'r')
 	inputData = f.read()
@@ -142,6 +154,7 @@ def decodeDataFromFile(inputFile, outputFile, markovInputFile, textFileFormat, w
 		f.write(chr(b))
 	f.close()
 
+	print "elapsed time: " + repr(time.time() - initTime) + " seconds"
 
 
 if __name__ == '__main__':
