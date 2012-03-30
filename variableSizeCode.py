@@ -98,7 +98,7 @@ def encodeDataFromFile(inputFile, outputFile, markovInputFile, textFileFormat, w
 	f.close()
 	markovData = json.JSONDecoder().decode(jsonData)
 
-	if (wordsPerState == 1 and type(markovData[0][0]) != str) or (wordsPerState == 2 and type(markovData[0][0]) != list):
+	if (wordsPerState == 1 and type(markovData[0][0]) != str and type(markovData[0][0]) != unicode) or (wordsPerState == 2 and type(markovData[0][0]) != list):
 		raise RuntimeError("error; markov chain structure doesn't match wordsPerState value")
 
 	inputData = []
@@ -133,7 +133,7 @@ def decodeDataFromFile(inputFile, outputFile, markovInputFile, textFileFormat, w
 	f.close()
 	markovData = json.JSONDecoder().decode(jsonData)
 
-	if (wordsPerState == 1 and type(markovData[0][0]) != str) or (wordsPerState == 2 and type(markovData[0][0]) != list):
+	if (wordsPerState == 1 and type(markovData[0][0]) != str and type(markovData[0][0]) != unicode) or (wordsPerState == 2 and type(markovData[0][0]) != list):
 		raise RuntimeError("error; markov chain structure doesn't match wordsPerState value")
 
 	f = open(inputFile, 'r')
