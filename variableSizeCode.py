@@ -109,6 +109,8 @@ def encodeDataFromFile(inputFile, outputFile, markovInputFile, textFileFormat, w
 		if char != "": inputData.append(ord(char))
 	f.close()
 
+	initTimeCode = time.time()
+
 	encodedData = encodeDataToWordList(inputData, 4, markovData, wordsPerState)
 
 	# save
@@ -117,12 +119,15 @@ def encodeDataFromFile(inputFile, outputFile, markovInputFile, textFileFormat, w
 	else:
 		outputData = json.JSONEncoder().encode(encodedData)
 
+	endTimeCode = time.time()
+
 	f = open(outputFile, 'w')
 	f.write(outputData)
 	f.close()
 
 	print "wrote " + repr(len(inputData) * 8) + " bits"
 	print "elapsed time: " + repr(time.time() - initTime) + " seconds"
+	print " - encoding time: " + repr(endTimeCode - initTimeCode) + " seconds"
 
 # given 2 input files, decode and save to the output file
 def decodeDataFromFile(inputFile, outputFile, markovInputFile, textFileFormat, wordsPerState = 1):
@@ -139,6 +144,8 @@ def decodeDataFromFile(inputFile, outputFile, markovInputFile, textFileFormat, w
 	f = open(inputFile, 'r')
 	inputData = f.read()
 	f.close()
+
+	initTimeDecode = time.time()
 	if textFileFormat:
 		inputData = utils.textToWordList(inputData)
 	else:
@@ -147,6 +154,7 @@ def decodeDataFromFile(inputFile, outputFile, markovInputFile, textFileFormat, w
 	decodedData = decodeWordListToData(inputData, 4, markovData, wordsPerState)
 	print "read " + repr(decodedData.totalFieldLen()) + " bits"
 	decodedData = decodedData.getAllBytes()
+	endTimeDecode = time.time()
 
 	# save
 	f = open(outputFile, 'wb')
@@ -155,6 +163,7 @@ def decodeDataFromFile(inputFile, outputFile, markovInputFile, textFileFormat, w
 	f.close()
 
 	print "elapsed time: " + repr(time.time() - initTime) + " seconds"
+	print " - decoding time: " + repr(endTimeDecode - initTimeDecode) + " seconds"
 
 
 if __name__ == '__main__':

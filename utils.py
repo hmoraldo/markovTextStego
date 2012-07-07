@@ -156,13 +156,14 @@ def convertNumberToByteList(number, bytesCount):
 		number = (number - b) / 256
 		bytes.insert(0, b)
 
+	bytes.reverse()
 	return bytes
 
 # converts an integer to a list of bytesCount bytes
 def convertByteListToNumber(bytes):
 	number = 0
 
-	for b in bytes:
+	for b in reversed(bytes):
 		number = number * 256 + b
 
 	return number
@@ -216,7 +217,7 @@ if __name__ == '__main__':
 		[('casa', ('00', '01')), ('bosque', ('10', '10')), ('selva', ('11', '11'))])
 	print "TEST 6"
 	bytes = convertNumberToByteList(342432, 3)
-	print bytes == [5, 57, 160]
+	print bytes == [160, 57, 5]
 	print convertByteListToNumber(bytes) == 342432
 	print "TEST 7"
 	bytes = convertNumberToByteList(127, 1)
@@ -224,7 +225,7 @@ if __name__ == '__main__':
 	print convertByteListToNumber(bytes) == 127
 	print "TEST 8"
 	bytes = convertNumberToByteList(123456, 3)
-	print bytes == [1, 226, 64]
+	print bytes == [64, 226, 1]
 	print convertByteListToNumber(bytes) == 123456
 	print "TEST 9"
 	print wordListToText(["word1","word2","word3","<START>","word4","<START>","word5"]) == "Word1 word2 word3. Word4. Word5"
