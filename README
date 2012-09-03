@@ -1,6 +1,11 @@
 Text steganography by Hernan Moraldo
 
-More documentation to be added soon.
+Code for "An Approach for Text Steganography Based on Markov Chains", JAIIO / WSegI 2012; http://www.41jaiio.org.ar/sites/default/files/3_WSegI_2012.pdf
+
+
+Usage:
+======
+
 
 There are two possible modes for encoding and decoding data into stego texts:
 
